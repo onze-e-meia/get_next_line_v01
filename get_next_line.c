@@ -6,13 +6,13 @@
 /*   By: tforster <tfforster@student.42sp.org.br    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/21 16:56:49 by tforster          #+#    #+#             */
-/*   Updated: 2024/06/24 19:34:55 by tforster         ###   ########.fr       */
+/*   Updated: 2024/06/24 20:35:53 by tforster         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-static char *read_file(int fd, int re, int s0, char *line, char *buffer, int alloc);
+static char *read_file(int fd, int re, int s0, t_line *line, char *buffer);
 
 static char	*clear_buffer(char *buffer)
 {
@@ -39,7 +39,7 @@ static char *cpy_to_buffer(char *src, char *dest, int len)
 	int	i;
 
 	i = 0;
-	while (src[i])
+	while (src[i] && i < BUFFER_SIZE)
 	{
 		dest[i] = src[i + len];
 		i++;
@@ -83,39 +83,41 @@ static char *cpy_from_buffer(char *src, char *dest)
 char	*get_next_line(int fd)
 {
 	static char	buffer[BUFFER_SIZE + 1];
-	char		*line;
+	// char		*line;
 	t_line		n_line;
-	int	re;
-	int	alloc;
+	// int	re;
+	// int	alloc;
 	int	len;
 
 	if (fd < 0 || read(fd, buffer, 0))
 		return (clear_buffer(buffer));
-	re = 1;
 
+	n_line.re = 1;
 	n_line.alloc = ALLOC;
+	// n_line.size = n_line.alloc + 1;
+	if (BUFFER_SIZE > n_line.alloc + 1)
+		n_line.alloc = BUFFER_SIZE;
+	n_line.size = n_line.alloc + 1;
 
-	alloc = ALLOC;
-	if (BUFFER_SIZE > ALLOC)
-		alloc = BUFFER_SIZE;
-	line = malloc(sizeof(char) * re * alloc + 1);
-	if (!line)
+	n_line.str = malloc(sizeof(char) * n_line.size);
+	if (!n_line.str)
 		return (NULL);
 
 	int	i = 0;
-	while (i < alloc)
-		line[i++] = '\0';
+	while (i < n_line.size)
+		n_line.str[i++] = '\0';
 
 
 	if (check_eol(buffer, 1, &len) >= 0 && len > 0)
-		cpy_from_buffer(buffer, line);
+		cpy_from_buffer(buffer, n_line.str);
 	if (check_eol(buffer, 1, &len))
-		return  (cpy_to_buffer(line, buffer, len));
+		return  (cpy_to_buffer(n_line.str, buffer, len));
 
-	return (read_file(fd, 0, len, line, buffer, alloc));
+	return (read_file(fd, 0, len, &n_line, buffer));
 }
 
-static char *read_file(int fd, int re, int s0, char *line, char *buffer, int alloc)
+
+static char *read_file(int fd, int re, int s0, t_line *line, char *buffer)
 {
 	ssize_t	n_byte;
 	ssize_t	start;
@@ -124,37 +126,39 @@ static char *read_file(int fd, int re, int s0, char *line, char *buffer, int all
 	len = 0;
 	re++;
 	start = BUFFER_SIZE * (re - 1) + s0;
-	printf("RE[%d] S0[%d] BUFFER [%zu] ALLOC [%d]\n", re, s0, BUFFER_SIZE + start, alloc);
-	if ((start + BUFFER_SIZE) >= alloc)
+	// printf("RE[%d] S0[%d] BUFFER [%zu] ALLOC [%d]\n", re, s0, BUFFER_SIZE + start, line->size);
+	if ((start + BUFFER_SIZE) >= line->size)
 	{
 		char	*re_line;
 
-		alloc = re * ALLOC + 1;
-		re_line = malloc(sizeof(char) * (re + 1) * alloc + 1);
-		printf("ALLOC [%d]\n", (re + 1) * alloc + 1);
+		line->re++;
+		line->size = line->re * line->alloc + 1;
+		re_line = malloc(sizeof(char) * line->size);
+		// printf("ALLOC [%d]\n", line->size);
 
-		cpy_from_buffer(line, re_line);
-		free(line);
-		line = re_line;
+		cpy_from_buffer(line->str, re_line);
+		free(line->str);
+		line->str = re_line;
 	}
 
-	n_byte = read(fd, line + start, BUFFER_SIZE);
-	line[n_byte + start] = '\0';
-	// int flag = check_eol(line + start, n_byte, &len);
-	// printf("RE[%d] START[%zd] N_BYTES[%zd] EOL[%d] SIZE[%d]\n", re, start, n_byte, flag, len);
-	if (n_byte > 0 && check_eol(line + start, n_byte, &len))
-		return (cpy_to_buffer(line, buffer, start + len));
-	else if (n_byte == 0 && check_eol(line, n_byte, &len))
+	n_byte = read(fd, line->str + start, BUFFER_SIZE);
+	line->str[n_byte + start] = '\0';
+	// int flag = check_eol(line->str, n_byte, &len);
+	// printf("RE[%d] START[%zd] N_BYTES[%zd] EOL[%d] SIZE[%d]\n\n", re, start, n_byte, flag, len);
+
+	if (n_byte > 0 && check_eol(line->str + start, n_byte, &len))
+		return (cpy_to_buffer(line->str, buffer, start + len));
+	else if (n_byte == 0 && check_eol(line->str, n_byte, &len))
 	{
 		// printf("===>>>FINAL\n");
 		clear_buffer(buffer);
-		return (line);
+		return (line->str);
 	}
 	else if (len > 0)
 	{
 		// printf("===>>>THEIS ONE [%d]\n", len);
-		return (read_file(fd, re, s0, line, buffer, alloc));
+		return (read_file(fd, re, s0, line, buffer));
 	}
-	free(line);
+	free(line->str);
 	return (NULL);
 }

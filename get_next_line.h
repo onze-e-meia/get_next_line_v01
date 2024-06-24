@@ -6,7 +6,7 @@
 /*   By: tforster <tfforster@student.42sp.org.br    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/21 15:56:13 by tforster          #+#    #+#             */
-/*   Updated: 2024/06/24 19:33:22 by tforster         ###   ########.fr       */
+/*   Updated: 2024/06/24 20:31:35 by tforster         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,13 +19,15 @@
 # include <fcntl.h>
 
 # ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 10
+#  define BUFFER_SIZE 10000
 # endif
 
 typedef struct s_line
 {
+	int		re;
 	int		alloc;
-	char	*line;
+	int		size;
+	char	*str;
 }			t_line;
 
 # define FLAG 0
