@@ -6,7 +6,7 @@
 /*   By: tforster <tfforster@student.42sp.org.br    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/17 16:53:04 by tforster          #+#    #+#             */
-/*   Updated: 2024/06/23 19:50:25 by tforster         ###   ########.fr       */
+/*   Updated: 2024/06/24 17:44:19 by tforster         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,14 +23,10 @@ int	main(int argc, char **argv)
 		fd = open(argv[1], O_RDONLY);
 	if (fd < 1)
 		return (0);
-	// printf("00\n");
 	gnl = get_next_line(fd);
-	// printf("01\n");
 	while (gnl)
 	{
-		// printf("<<<GNL START>>>\n");
-		printf("===>>> %s", gnl);
-		// printf("\n<<<GNL END>>>\n\n");
+		printf("%s", gnl);
 		if (gnl)
 			free(gnl);
 		gnl = get_next_line(fd);
