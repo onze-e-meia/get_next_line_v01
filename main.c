@@ -6,7 +6,7 @@
 /*   By: tforster <tfforster@student.42sp.org.br    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/17 16:53:04 by tforster          #+#    #+#             */
-/*   Updated: 2024/06/25 12:07:44 by tforster         ###   ########.fr       */
+/*   Updated: 2024/06/25 15:03:12 by tforster         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,9 @@ int	main(int argc, char **argv)
 	char		*gnl;
 	int			fd;
 
-	int		i = 0;
-	int		bytes = 0;
-	char	buffer [7];
+	// int		i = 0;
+	// int		bytes = 0;
+	// char	buffer [7];
 
 	// printf(">>> BYTES [%d]\n STR: [%s]", bytes, buffer);
 	// printf(">>> END\n\n");
