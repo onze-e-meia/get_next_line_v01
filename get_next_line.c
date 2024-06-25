@@ -6,7 +6,7 @@
 /*   By: tforster <tfforster@student.42sp.org.br    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/21 16:56:49 by tforster          #+#    #+#             */
-/*   Updated: 2024/06/24 21:14:25 by tforster         ###   ########.fr       */
+/*   Updated: 2024/06/24 21:17:25 by tforster         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,7 @@ char	*get_next_line(int fd)
 	static char	buffer[BUFFER_SIZE + 1];
 	t_line		line;
 	int			s0;
+	int			i;
 
 	if (fd < 0 || read(fd, buffer, 0))
 		return (clear_buffer(buffer));
@@ -82,7 +83,7 @@ char	*get_next_line(int fd)
 	line.str = malloc(sizeof(char) * line.size);
 	if (!line.str)
 		return (NULL);
-	int	i = 0;
+	i = 0;
 	while (i < line.size)
 		line.str[i++] = '\0';
 	if (check_eol(buffer, 1, &s0) >= 0 && s0 > 0)
